@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_aep" default="compile.module.aep">
+  <dirname property="module.aep.basedir" file="${ant.file.module_aep}"/>
+  
+  <property name="module.jdk.home.aep" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.aep" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.aep" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.aep" value="${compiler.args}"/>
+  
+  <property name="aep.output.dir" value="${module.aep.basedir}/out/production/aep"/>
+  <property name="aep.testoutput.dir" value="${module.aep.basedir}/out/test/aep"/>
+  
+  <path id="aep.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="aep.module.production.classpath">
+    <path refid="${module.jdk.classpath.aep}"/>
+  </path>
+  
+  <path id="aep.runtime.production.module.classpath">
+    <pathelement location="${aep.output.dir}"/>
+  </path>
+  
+  <path id="aep.module.classpath">
+    <path refid="${module.jdk.classpath.aep}"/>
+    <pathelement location="${aep.output.dir}"/>
+    <pathelement location="${idea.home}/lib/junit-4.10.jar"/>
+  </path>
+  
+  <path id="aep.runtime.module.classpath">
+    <pathelement location="${aep.testoutput.dir}"/>
+    <pathelement location="${aep.output.dir}"/>
+    <pathelement location="${idea.home}/lib/junit-4.10.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.aep">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.aep">
+    <patternset refid="excluded.from.module.aep"/>
+  </patternset>
+  
+  <path id="aep.module.sourcepath">
+    <dirset dir="${module.aep.basedir}">
+      <include name="src/main"/>
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  <path id="aep.module.test.sourcepath">
+    <dirset dir="${module.aep.basedir}">
+      <include name="src/test"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.aep" depends="compile.module.aep.production,compile.module.aep.tests" description="Compile module aep"/>
+  
+  <target name="compile.module.aep.production" depends="register.custom.compilers" description="Compile module aep; production classes">
+    <mkdir dir="${aep.output.dir}"/>
+    <javac2 destdir="${aep.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.aep}/javac">
+      <compilerarg line="${compiler.args.aep}"/>
+      <bootclasspath refid="aep.module.bootclasspath"/>
+      <classpath refid="aep.module.production.classpath"/>
+      <src refid="aep.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.aep"/>
+    </javac2>
+    
+    <copy todir="${aep.output.dir}">
+      <fileset dir="${module.aep.basedir}/src/main">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.aep.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.aep.tests" depends="register.custom.compilers,compile.module.aep.production" description="compile module aep; test classes" unless="skip.tests">
+    <mkdir dir="${aep.testoutput.dir}"/>
+    <javac2 destdir="${aep.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.aep}/javac">
+      <compilerarg line="${compiler.args.aep}"/>
+      <bootclasspath refid="aep.module.bootclasspath"/>
+      <classpath refid="aep.module.classpath"/>
+      <src refid="aep.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.aep"/>
+    </javac2>
+    
+    <copy todir="${aep.testoutput.dir}">
+      <fileset dir="${module.aep.basedir}/src/test">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.aep" description="cleanup module">
+    <delete dir="${aep.output.dir}"/>
+    <delete dir="${aep.testoutput.dir}"/>
+  </target>
+</project>
